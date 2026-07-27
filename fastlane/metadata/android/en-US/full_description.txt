@@ -1,0 +1,22 @@
+<Hook line.> Fossling <Function> <what it does — one paragraph, primary audience named>.
+
+<EMOJI> <ALL-CAPS BENEFIT PHRASE>
+<1–3 benefit-led sentences weaving in concrete features.>
+
+<EMOJI> <ALL-CAPS BENEFIT PHRASE>
+<1–3 sentences.>
+
+<EMOJI> <ALL-CAPS BENEFIT PHRASE>
+<1–3 sentences.>
+
+🔒 PRIVATE BY DESIGN
+No ads, no tracking, no analytics — ever. <Network truth for this app: either "No network access." or full transparency — what travels, where it goes, and the self-hostable/self-manageable option.>
+
+🌍 IN YOUR LANGUAGE
+Available in English and French.
+
+Fossling <Function> is free software (AGPL-3.0), part of Fossling — the Inspired Beings collection of free/libre, adless apps.
+
+More Fossling apps: https://github.com/inspired-beings
+Website: https://www.inspired-beings.com
+Source code: https://github.com/inspired-beings/fossling-<app>

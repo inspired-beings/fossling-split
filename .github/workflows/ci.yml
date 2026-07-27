@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  # Flutter jobs skip on the template repo itself (no Flutter project here) AND on a
+  # freshly generated repo until the Flutter skeleton lands at bootstrap; they arm
+  # automatically once pubspec.yaml exists. Detection needs a real job: job-level
+  # hashFiles() evaluates against an empty workspace.
+  flutter-app:
+    if: ${{ !github.event.repository.is_template }}
+    runs-on: ubuntu-latest
+    outputs:
+      present: ${{ steps.detect.outputs.present }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: detect
+        run: echo "present=$([[ -f pubspec.yaml ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+  check:
+    needs: flutter-app
+    if: ${{ needs.flutter-app.outputs.present == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: "3.44.7"
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: flutter analyze
+      - run: flutter test
+
+  # Sustainable-design gates on the artifact users actually install; the release build
+  # doubles as the compile check.
+  release-apk:
+    needs: flutter-app
+    if: ${{ needs.flutter-app.outputs.present == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          channel: stable
+          flutter-version: "3.44.7"
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      # Unsigned fallback (debug signing config): signing keys are release-only.
+      - run: flutter build apk --release
+      - name: Check size budget, merged permissions and minSdk
+        run: ./tool/check_release_apk.sh
+
+  # Same gate the release runs, kept on every PR so a new alert surfaces here first.
+  # Runs on the template repo too — it needs no app code.
+  security-alerts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check open security alerts
+        env:
+          GH_TOKEN: ${{ secrets.SECURITY_ALERTS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: ./tool/check_security_alerts.sh

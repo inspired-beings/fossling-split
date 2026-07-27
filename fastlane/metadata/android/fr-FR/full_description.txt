@@ -1,0 +1,22 @@
+<Phrase d'accroche.> Fossling <Fonction> <ce que fait l'app — un paragraphe, public principal nommé>.
+
+<EMOJI> <PHRASE BÉNÉFICE EN CAPITALES>
+<1–3 phrases orientées bénéfices, tissant des fonctionnalités concrètes.>
+
+<EMOJI> <PHRASE BÉNÉFICE EN CAPITALES>
+<1–3 phrases.>
+
+<EMOJI> <PHRASE BÉNÉFICE EN CAPITALES>
+<1–3 phrases.>
+
+🔒 PRIVÉE PAR CONCEPTION
+Aucune publicité, aucun pistage, aucune mesure d'audience — jamais. <Vérité réseau pour cette app : soit « Aucun accès réseau. », soit la transparence complète — ce qui transite, où cela va, et l'option auto-hébergeable/auto-gérable.>
+
+🌍 DANS VOTRE LANGUE
+Disponible en français et en anglais.
+
+Fossling <Fonction> est un logiciel libre (AGPL-3.0), membre de Fossling — la collection d'applications libres et sans publicité d'Inspired Beings.
+
+Plus d'applications Fossling : https://github.com/inspired-beings
+Site web : https://www.inspired-beings.com
+Code source : https://github.com/inspired-beings/fossling-<app>
