@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Locale-invariant by decision: "Split" is the launcher label in every locale, no values-fr override. -->
+    <string name="app_name">Split</string>
+</resources>

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Sustainable-design gates over the BUILT release APK: size budget, merged-manifest
-# permissions and effective minSdk. Reads the final artifact on purpose — plugins merge
-# permissions and can raise minSdk, so the source manifest and Gradle config are not proof.
+# Sustainable-design and privacy gates over the BUILT release APK: size budget,
+# merged-manifest permissions, effective minSdk and the auto-backup opt-out. Reads the
+# final artifact on purpose — plugins merge permissions and manifest attributes and can
+# raise minSdk, so the source manifest and Gradle config are not proof.
 #
 # Every threshold below ratchets one way only (smaller APK, lower minSdk, fewer
 # permissions). Loosening one is a product-owner decision, never a build fix.
@@ -12,7 +13,7 @@ readonly APK="${1:-build/app/outputs/flutter-apk/app-release.apk}"
 # Set from this app's measured baseline (universal release APK) + ~15% headroom at the
 # first release, then only lower it. The template ships no number on purpose — an
 # inherited budget is a silent pass, not a baseline.
-readonly MAX_MIB=SET_ME
+readonly MAX_MIB=49
 # Old-device reach: a higher floor drops users off the app.
 readonly MAX_MIN_SDK=26
 # No networking, no background work, no boot hooks. Remove a network entry ONLY when
@@ -88,6 +89,24 @@ if [[ -z "$min_sdk" ]]; then
   fail "could not read minSdkVersion from the APK"
 elif ((min_sdk > MAX_MIN_SDK)); then
   fail "effective minSdk is $min_sdk, above the $MAX_MIN_SDK anchor"
+fi
+
+# Auto-backup opt-out. The ledger holds third-party payment hints (IBANs) that must
+# never leave the device — Android auto-backup would copy them to the user's Google
+# Drive. A library can flip allowBackup back on through manifest merging, so assert it
+# on the artifact.
+manifest="$("$aapt2" dump xmltree --file AndroidManifest.xml "$APK")"
+
+# aapt2 renders booleans as `false` (newer) or `(type 0x12)0x0` (older).
+allow_backup="$(printf '%s\n' "$manifest" |
+  sed -n 's/.*android:allowBackup([^)]*)=//p' | head -1)"
+echo "android:allowBackup: ${allow_backup:-unset}"
+if [[ "$allow_backup" != "false" && "$allow_backup" != *0x0 ]]; then
+  fail "android:allowBackup must be false in the merged manifest (got '${allow_backup:-unset}')"
+fi
+
+if ! printf '%s\n' "$manifest" | grep -q 'android:dataExtractionRules('; then
+  fail "android:dataExtractionRules is missing from the merged manifest"
 fi
 
 exit "$failed"
